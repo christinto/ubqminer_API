@@ -1,38 +1,48 @@
-var express = require("express");
+var express = require("express"); //keep express, exposes localhost
 var app = express();
-var request = require("request");
+/* var https = require("https"); //not needed*/
+var rp = require("request-promise"); //?
 
-//like the first example, call request
-request({
-	url: "https://ubiqpool.io/api/accounts/0xc6e9103d2faa3422dbc3016d9b85cf9617dfc4af",
-	json: true
-}, function(error, response, body) {
-	ubqPayouts = body.paymentsTotal;
+//for request-promise library it expects reqOptions 
+var reqOptions ={
+	method: 'GET',
+	uri: 'https://ubiqpool.io/api/accounts/0xc6e9103d2faa3422dbc3016d9b85cf9617dfc4af',
+	headers: {
+    'user-agent': 'node.js'},
+  json: true
+};
 
-	console.log('error:', error); // Print the error if one occurred 
+//got rid of error from error,response,body
+rp(reqOptions)
+  .then(function(response, body) {
+  ubqPayouts = body.paymentsTotal;
+	activeMiners = body.workersTotal; 
+
+	/*console.log('error:', error); // Print the error if one occurred */
     console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received 
     console.log('body:', body);
-});
+})
+     .catch(function(err) {
+    console.log('request failed : '+err);
+  });
 
-
-app.get("/", function(req, res) {
-	res.send("Ubq miner payouts! " + ubqPayouts + " hell yeah");
-});
-
-app.listen(8084, function(){
+// exposes to postman, necessary
+ app.get("/getpayments", function(req, res) {
+  rp({
+    uri: 'https://ubiqpool.io/api/accounts/0xc6e9103d2faa3422dbc3016d9b85cf9617dfc4af',
+    json:true 
+  })
+    .then((function(response) {response.pipe(res);
+    res.send("Ubq miner payouts! " + ubqPayouts + " hell yeah")
+  })
+    .catch((err) {
+      console.log(err)
+      res.send('error')
+    })
+  })
+   
+ 
+app.listen(8087, function(){
 	console.log("go");
 });
-
-
-//to send a html file instead of a string, just change send to sendfile
-/*app.get("/workers", function(req, res) {
-	res.sendfile("index.html");
-}); 
-
-/*if you wanna do other endpoints, just keepadding these app functions :)..
-app.get("/block", function(req, res) {
-	res.send("Current bitcoin blockheight " + btcBlocks);
-}); */
-
-
 
