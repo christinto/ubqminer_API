@@ -16,18 +16,21 @@ var reqOptions = {
 // exposes to postman, necessary
  app.get("/getpayments", function(req, res) {
 	 //got rid of error from error,response,body
-	 rp(reqOptions).then(function (data) {
+		rp(reqOptions).then(function (data) {
 			//  	ubqPayouts = body.paymentsTotal;
 			// 	activeMiners = body.workersTotal;
 
 	 	/*console.log('error:', error); // Print the error if one occurred */
 	    //  console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-	     console.log('data:', data);
-	 	}).catch(function(err) {
+	     console.log('data.payments:', data.payments);
+
+			// Use res to send back the response as json of the data.payments object
+			 res.send(data.payments);
+	 	 }).catch(function(err) {
 	     console.log('request failed : '+ err);
 	   });
   })
 
 app.listen(8080, function(){
-	console.log("go");
+	console.log("app.js running");
 });
